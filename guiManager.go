@@ -7,7 +7,7 @@ import (
 	// "strconv"
 )
 
-func getTickerList() *ui.List {
+func getCoinsList() []string {
 	var btc Coin
 	var ltc Coin
 	var eth Coin
@@ -46,8 +46,11 @@ func getTickerList() *ui.List {
 		fmt.Sprintf("Last update: %v", btc[0].LastUpdated),
 	}
 
+	return coins
+}
+func getTickerList() *ui.List {
 	ls := ui.NewList()
-	ls.Items = coins
+	ls.Items = getCoinsList()
 	ls.ItemFgColor = ui.ColorYellow
 	ls.BorderLabel = "Trackers"
 	ls.Height = 25

@@ -1,12 +1,14 @@
 package main
 
 import (
+	//"fmt"
 	ui "github.com/gizak/termui"
+	"strconv"
+	"time"
 )
 
-var ss int = 0
-
 func main() {
+	var ss int = 0
 	// InitHistData()
 	err := ui.Init()
 	if err != nil {
@@ -16,18 +18,19 @@ func main() {
 
 	tickerList := getTickerList()
 
-	par0 := ui.NewPar(string(ss))
-	par0.Height = 10
-	par0.Width = 20
-	par0.Y = 1
-	par0.Border = false
+	par := ui.NewPar("")
+	par.Height = 3
+	par.Width = 17
+	par.BorderLabel = "Label"
+	par.TextFgColor = ui.ColorGreen
+	par.TextBgColor = ui.ColorMagenta
 
 	ui.Body.AddRows(
 		ui.NewRow(
 			ui.NewCol(12, 0, tickerList),
 		),
 		ui.NewRow(
-			ui.NewCol(6, 0, par0),
+			ui.NewCol(12, 0, par),
 		),
 	)
 
@@ -37,11 +40,13 @@ func main() {
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
 		ui.StopLoop()
 	})
-
-	ui.Handle("/timer/1s", func(e ui.Event) {
-		ss++
+	// 1486923240
+	ui.Merge("6s", ui.NewTimerCh(time.Second*6))
+	ui.Handle("/timer/6s", func(e ui.Event) {
+		ss += 1
+		par.Text = strconv.Itoa(ss)
+		tickerList.Items = getCoinsList()
 		ui.Body.Align()
-		tickerList = getTickerList()
 		ui.Clear()
 		ui.Render(ui.Body)
 	})
