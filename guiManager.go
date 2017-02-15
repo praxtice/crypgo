@@ -7,6 +7,11 @@ import (
 	// "strconv"
 )
 
+// CoinGui The GUI manage struct for coins
+type CoinGui struct {
+	Coin *Coin
+}
+
 func getCoinsList() []string {
 	var btc Coin
 	var ltc Coin
