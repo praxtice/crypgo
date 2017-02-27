@@ -3,28 +3,55 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	ui "github.com/gizak/termui"
 	// "strconv"
 )
 
 // CoinGui The GUI manage struct for coins
 type CoinGui struct {
-	Coin *Coin
+	Coin      Coin
+	PriceBtc  *ui.Par
+	PriceUsd  *ui.Par
+	Change1h  *ui.Par
+	Change24h *ui.Par
+}
+
+func newCoinGui(c Coin) CoinGui {
+	Usd := ui.NewPar(fmt.Sprintf("\t\t $ %v", c[0].PriceUsd))
+	Usd.Height = 3
+	Usd.Width = 4
+
+	Btc := ui.NewPar(strings.TrimSpace(fmt.Sprintf("\t\t Ƀ %v", c[0].PriceBtc)))
+	Btc.Height = 3
+	Btc.Width = 4
+
+	Change1Hour := ui.NewPar(fmt.Sprintf("change(1h)\n%v %%", c[0].PercentChange24H))
+	Change1Hour.Height = 6
+	Change1Hour.Width = 4
+
+	Change24Hour := ui.NewPar(fmt.Sprintf("change(24h)\n%v %%", c[0].PercentChange24H))
+	Change24Hour.Height = 6
+	Change24Hour.Width = 4
+
+	GC := CoinGui{Coin: c, PriceBtc: Btc, PriceUsd: Usd, Change1h: Change1Hour, Change24h: Change24Hour}
+	return GC
 }
 
 func getCoinsList() []string {
 	var btc Coin
 	var ltc Coin
 	var eth Coin
-	err := json.Unmarshal(CallApi("bitcoin"), &btc)
+	err := json.Unmarshal(CallAPI("bitcoin"), &btc)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(CallApi("litecoin"), &ltc)
+	err = json.Unmarshal(CallAPI("litecoin"), &ltc)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(CallApi("ethereum"), &eth)
+	err = json.Unmarshal(CallAPI("ethereum"), &eth)
 	if err != nil {
 		panic(err)
 	}

@@ -17,9 +17,8 @@ ex:
 https://api.coinmarketcap.com/v1/ticker/bitcoin/
 */
 
-// Cryptocurrency Struct:
-//  struct for current crytocurrency status
-
+// Coin ...
+// struct for the json of a coin
 type Coin []struct {
 	ID               string `json:"id"`
 	Name             string `json:"name"`
@@ -37,31 +36,10 @@ type Coin []struct {
 	LastUpdated      string `json:"last_updated"`
 }
 
+// Hist ...
 type Hist []struct {
 	data        []string `json:"history"`
 	LastUpdated string   `json:"last_updated"`
-}
-
-func BtcHist() Hist {
-	file, e := ioutil.ReadFile("btc_hist.json")
-	if e != nil {
-		fmt.Printf("File error: %v\n", e)
-		os.Exit(1)
-	}
-
-	var hist Hist
-	json.Unmarshal(file, &hist)
-	fmt.Sprintf("Result: %v", hist)
-	return hist
-}
-
-func getHistFile() []byte {
-	file, e := ioutil.ReadFile("btc_hist.json")
-	if e != nil {
-		fmt.Printf("File error: %v\n", e)
-		os.Exit(1)
-	}
-	return file
 }
 
 func getCurrent(c Coin) error {
@@ -78,7 +56,11 @@ func getCurrent(c Coin) error {
 	return nil
 }
 
-func CallApi(s string) []byte {
+// CallAPI ...
+// takes a coin name ang called the coinmarketcap api
+// for that coin.
+// Returns the unparsed json response
+func CallAPI(s string) []byte {
 	/* coin := []string{"bitcoin", "ethereum", "dash", */
 	// "litecoin", "Monero", "MaidSafeCoin",
 	// "Stellar", "BitShares", "Dogecoin",

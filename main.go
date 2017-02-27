@@ -2,14 +2,18 @@ package main
 
 import (
 	//"fmt"
-	ui "github.com/gizak/termui"
-	"strconv"
+	"encoding/json"
 	"time"
+
+	ui "github.com/gizak/termui"
 )
 
-// CoinGui The GUI manage struct for coins
-type CoinGui struct {
-	Coin *Coin
+func label(s string) *ui.Par {
+	l := ui.NewPar(s)
+	l.Height = 5
+	l.Width = 3
+
+	return l
 }
 
 func main() {
@@ -21,26 +25,25 @@ func main() {
 	}
 	defer ui.Close()
 
-	var Gbtc CoinGui
-	var Gltc CoinGui
-	var Geth CoinGui
-
 	var btc Coin
 	var ltc Coin
 	var eth Coin
-	err = json.Unmarshal(CallApi("bitcoin"), &btc)
+	err = json.Unmarshal(CallAPI("bitcoin"), &btc)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(CallApi("litecoin"), &ltc)
+	err = json.Unmarshal(CallAPI("litecoin"), &ltc)
 	if err != nil {
 		panic(err)
 	}
-	err = json.Unmarshal(CallApi("ethereum"), &eth)
+	err = json.Unmarshal(CallAPI("ethereum"), &eth)
 	if err != nil {
 		panic(err)
 	}
 
+	Gbtc := newCoinGui(btc)
+	Gltc := newCoinGui(ltc)
+	Geth := newCoinGui(eth)
 	// ui.Body.AddRows(
 	// 	ui.NewRow(
 	// 		ui.NewCol(12, 0, tickerList),
@@ -52,54 +55,74 @@ func main() {
 
 	btcLabel := ui.NewPar("Ƀ BTC")
 	btcLabel.Height = 3
-	btcLabel.Width = 2
+	btcLabel.Width = 3
 	btcLabel.TextFgColor = ui.ColorWhite
 
 	ethLabel := ui.NewPar("Ξ ETH")
 	ethLabel.Height = 3
-	ethLabel.Width = 2
+	ethLabel.Width = 3
 	ethLabel.TextFgColor = ui.ColorWhite
 
 	ltcLabel := ui.NewPar("Ł LTC")
 	ltcLabel.Height = 3
-	ltcLabel.Width = 2
+	ltcLabel.Width = 3
 	ltcLabel.TextFgColor = ui.ColorWhite
 
 	ui.Body.AddRows(
 		ui.NewRow(
 			ui.NewCol(2, 5, btcLabel),
 		),
+		// ui.NewRow(
+		// 	ui.NewCol(4, 0, label("Price BTC")), // Price BTC Label
+		// 	ui.NewCol(4, 0, label("Price USD")), // Price USD Label
+		// 	ui.NewCol(4, 0, label("Change 1h")), // Percentage Change 1 h
+		// 	ui.NewCol(4, 0, label("Change 24h")),
+		// ),
 		ui.NewRow(
-			ui.NewCol(0, 3), // Price BTC Label
-			ui.NewCol(0, 3), // Price BTC Value
-			ui.NewCol(0, 3), // Price USD Label
-			ui.NewCol(0, 3), // Price USD Value
-			ui.NewCol(0, 3), // Percentage Change 1 h
-			ui.NewCol(0, 3), // Percentage Change 24h
+			ui.NewCol(4, 2, Gbtc.PriceBtc), // Price BTC Value
+			ui.NewCol(4, 0, Gbtc.PriceUsd), // Price USD Value
 		),
+		ui.NewRow(
+			ui.NewCol(4, 2, Gbtc.Change1h),  // Percentage Change 1h
+			ui.NewCol(4, 0, Gbtc.Change24h), // Percentage Change 24h
 
+		),
 		ui.NewRow(
 			ui.NewCol(2, 5, ethLabel),
 		),
+		// ui.NewRow(
+		// 	ui.NewCol(4, 0, label("Price BTC")), // Price BTC Label
+		// 	ui.NewCol(4, 0, label("Price USD")), // Price USD Label
+		// 	ui.NewCol(4, 0, label("Change 1h")), // Percentage Change 1 h
+		// 	ui.NewCol(4, 0, label("Change 24h")),
+		// ),
 		ui.NewRow(
-			ui.NewCol(0, 3), // Price BTC Label
-			ui.NewCol(0, 3), // Price BTC Value
-			ui.NewCol(0, 3), // Price USD Label
-			ui.NewCol(0, 3), // Price USD Value
-			ui.NewCol(0, 3), // Percentage Change 1 h
-			ui.NewCol(0, 3), // Percentage Change 24h
+			ui.NewCol(4, 2, Geth.PriceBtc), // Price BTC Value
+			ui.NewCol(4, 0, Geth.PriceUsd), // Price USD Value
+		),
+		ui.NewRow(
+			ui.NewCol(4, 2, Geth.Change1h),  // Percentage Change 1h
+			ui.NewCol(4, 0, Geth.Change24h), // Percentage Change 24h
+
 		),
 
 		ui.NewRow(
 			ui.NewCol(2, 5, ltcLabel),
 		),
+		// ui.NewRow(
+		// 	ui.NewCol(4, 0, label("Price BTC")), // Price BTC Label
+		// 	ui.NewCol(4, 0, label("Price USD")), // Price USD Label
+		// 	ui.NewCol(4, 0, label("Change 1h")), // Percentage Change 1 h
+		// 	ui.NewCol(4, 0, label("Change 24h")),
+		// ),
 		ui.NewRow(
-			ui.NewCol(0, 3), // Price BTC Label
-			ui.NewCol(0, 3), // Price BTC Value
-			ui.NewCol(0, 3), // Price USD Label
-			ui.NewCol(0, 3), // Price USD Value
-			ui.NewCol(0, 3), // Percentage Change 1 h
-			ui.NewCol(0, 3), // Percentage Change 24h
+			ui.NewCol(4, 2, Gltc.PriceBtc), // Price BTC Value
+			ui.NewCol(4, 0, Gltc.PriceUsd), // Price USD Value
+		),
+		ui.NewRow(
+			ui.NewCol(4, 2, Gltc.Change1h),  // Percentage Change 1h
+			ui.NewCol(4, 0, Gltc.Change24h), // Percentage Change 24h
+
 		),
 	)
 
@@ -113,15 +136,14 @@ func main() {
 	ui.Merge("6s", ui.NewTimerCh(time.Second*6))
 	ui.Handle("/timer/6s", func(e ui.Event) {
 		ss++
-		par.Text = strconv.Itoa(ss)
-		tickerList.Items = getCoinsList()
+		//tickerList.Items = getCoinsList()
 		ui.Body.Align()
 		ui.Clear()
 		ui.Render(ui.Body)
 	})
 
 	ui.Handle("/sys/wnd/resize", func(e ui.Event) {
-		tickerList = getTickerList()
+		//tickerList = getTickerList()
 		ui.Body.Width = ui.TermWidth()
 		ui.Body.Align()
 		ui.Clear()
