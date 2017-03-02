@@ -11,11 +11,12 @@ import (
 
 // CoinGui The GUI manage struct for coins
 type CoinGui struct {
-	Coin      Coin
-	PriceBtc  *ui.Par
-	PriceUsd  *ui.Par
-	Change1h  *ui.Par
-	Change24h *ui.Par
+	Coin       Coin
+	PriceBtc   *ui.Par
+	PriceUsd   *ui.Par
+	Change1h   *ui.Par
+	Change24h  *ui.Par
+	LastUpdate *ui.Par
 }
 
 func newCoinGui(c Coin) CoinGui {
@@ -28,14 +29,18 @@ func newCoinGui(c Coin) CoinGui {
 	Btc.Width = 4
 
 	Change1Hour := ui.NewPar(fmt.Sprintf("change(1h)\n%v %%", c[0].PercentChange24H))
-	Change1Hour.Height = 6
+	Change1Hour.Height = 4
 	Change1Hour.Width = 4
 
 	Change24Hour := ui.NewPar(fmt.Sprintf("change(24h)\n%v %%", c[0].PercentChange24H))
-	Change24Hour.Height = 6
+	Change24Hour.Height = 4
 	Change24Hour.Width = 4
 
-	GC := CoinGui{Coin: c, PriceBtc: Btc, PriceUsd: Usd, Change1h: Change1Hour, Change24h: Change24Hour}
+	LastUp := ui.NewPar(fmt.Sprintf("Last Update: %v", c[0].LastUpdated))
+	LastUp.Height = 3
+	LastUp.Width = 4
+
+	GC := CoinGui{Coin: c, PriceBtc: Btc, PriceUsd: Usd, Change1h: Change1Hour, Change24h: Change24Hour, LastUpdate: LastUp}
 	return GC
 }
 

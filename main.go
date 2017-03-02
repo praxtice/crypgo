@@ -3,6 +3,8 @@ package main
 import (
 	//"fmt"
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"time"
 
 	ui "github.com/gizak/termui"
@@ -12,19 +14,21 @@ func label(s string) *ui.Par {
 	l := ui.NewPar(s)
 	l.Height = 5
 	l.Width = 3
-
+	l.Border = false
 	return l
 }
 
 func main() {
-	var ss int
-	// InitHistData()
+	ss := 0
+	// InitHistData()?
+	// Read old hist data
+	// create new struct for old data
+
 	err := ui.Init()
 	if err != nil {
 		panic(err)
 	}
 	defer ui.Close()
-
 	var btc Coin
 	var ltc Coin
 	var eth Coin
@@ -67,6 +71,12 @@ func main() {
 	ltcLabel.Height = 3
 	ltcLabel.Width = 3
 	ltcLabel.TextFgColor = ui.ColorWhite
+
+	ssLabel := ui.NewPar("refresh counter: 0")
+	ssLabel.Height = 3
+	ssLabel.Width = 3
+	ssLabel.TextFgColor = ui.ColorWhite
+	ssLabel.Border = false
 
 	ui.Body.AddRows(
 		ui.NewRow(
@@ -124,6 +134,12 @@ func main() {
 			ui.NewCol(4, 0, Gltc.Change24h), // Percentage Change 24h
 
 		),
+		ui.NewRow(
+			ui.NewCol(8, 2, Gbtc.LastUpdate),
+		),
+		ui.NewRow(
+			ui.NewCol(4, 2, ssLabel),
+		),
 	)
 
 	ui.Body.Align()
@@ -132,10 +148,26 @@ func main() {
 	ui.Handle("/sys/kbd/q", func(ui.Event) {
 		ui.StopLoop()
 	})
-	// 1486923240
 	ui.Merge("6s", ui.NewTimerCh(time.Second*6))
 	ui.Handle("/timer/6s", func(e ui.Event) {
 		ss++
+		ssLabel.Text = fmt.Sprintf("refresh counter: %v", strconv.Itoa(ss))
+		err = json.Unmarshal(CallAPI("bitcoin"), &btc)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(CallAPI("litecoin"), &ltc)
+		if err != nil {
+			panic(err)
+		}
+		err = json.Unmarshal(CallAPI("ethereum"), &eth)
+		if err != nil {
+			panic(err)
+		}
+
+		Gbtc = newCoinGui(btc)
+		Gltc = newCoinGui(ltc)
+		Geth = newCoinGui(eth)
 		//tickerList.Items = getCoinsList()
 		ui.Body.Align()
 		ui.Clear()
