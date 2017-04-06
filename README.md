@@ -2,6 +2,4 @@
 
 To-Do
 - [X] BTC, LTC, ETH tracker
-- [ ] Par color change on increase or decrease
-- [ ] Cryptocurrency Customizability
-- [ ] Cryptocurrency Search?
+- [ ] Adjustible windowing
